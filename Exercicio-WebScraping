@@ -1,0 +1,129 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyPntdo6YwPX/gQjqRX3BW4v",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/KevenAbraham/FATEC_MINERACAO_DADOS_2SEM2024/blob/main/Exercicio-WebScraping\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 7,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "g4jMwKGF_MQZ",
+        "outputId": "e411f225-3e3a-49f8-c111-dba4f6b4911c"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: requests in /usr/local/lib/python3.10/dist-packages (2.32.3)\n",
+            "Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests) (3.4.0)\n",
+            "Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/dist-packages (from requests) (3.10)\n",
+            "Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/dist-packages (from requests) (2.2.3)\n",
+            "Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.10/dist-packages (from requests) (2024.8.30)\n",
+            "Requirement already satisfied: beautifulsoup4 in /usr/local/lib/python3.10/dist-packages (4.12.3)\n",
+            "Requirement already satisfied: soupsieve>1.2 in /usr/local/lib/python3.10/dist-packages (from beautifulsoup4) (2.6)\n"
+          ]
+        }
+      ],
+      "source": [
+        "# Instalando as bibliotecas necessárias\n",
+        "!pip install requests\n",
+        "!pip install beautifulsoup4\n",
+        "\n",
+        "import requests\n",
+        "from bs4 import BeautifulSoup\n",
+        "\n",
+        "# URL do site de exemplo hospedado no GitHub Pages\n",
+        "url = 'https://books.toscrape.com/'\n",
+        "\n",
+        "# Fazendo a requisição HTTP para obter o conteúdo da página\n",
+        "response = requests.get(url)\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "if response.status_code == 200:\n",
+        "    print(\"Conexão bem-sucedida!\")\n",
+        "\n",
+        "    soup = BeautifulSoup(response.text, 'html.parser')\n",
+        "\n",
+        "    livros = soup.find_all('article', class_='product_pod')\n",
+        "\n",
+        "    total_preco = 0\n",
+        "    lista_precos = []\n",
+        "\n",
+        "    soup = BeautifulSoup(response.content, 'html.parser')\n",
+        "\n",
+        "    for livro in livros:\n",
+        "        preco = livro.find('p', class_='price_color').text\n",
+        "        preco = preco.encode('utf-8').decode('ascii', 'ignore')\n",
+        "        preco = preco.replace('£', '').strip()\n",
+        "        preco = float(preco)\n",
+        "        total_preco += preco\n",
+        "        lista_precos.append((preco, livro.h3.a['title']))\n",
+        "\n",
+        "    preco_medio = total_preco / len(livros)\n",
+        "    print(f\"Preço médio dos livros: {preco_medio:.2f}\")\n",
+        "\n",
+        "    print(f\"Contagem de livros disponíveis: {len(livros)}\")\n",
+        "\n",
+        "    livros_mais_caros = sorted(lista_precos, reverse=True)[:3]\n",
+        "    print(\"Livros mais caros:\")\n",
+        "    for preco, titulo in livros_mais_caros:\n",
+        "        print(f\"{titulo} - {preco:.2f}\")\n",
+        "else:\n",
+        "    print(\"Erro ao acessar o site.\")"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "zOqk6gbB_nsT",
+        "outputId": "032a952b-5ee1-4aba-f885-595e45b85b04"
+      },
+      "execution_count": 14,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Conexão bem-sucedida!\n",
+            "Preço médio dos livros: 38.05\n",
+            "Contagem de livros disponíveis: 20\n",
+            "Livros mais caros:\n",
+            "Our Band Could Be Your Life: Scenes from the American Indie Underground, 1981-1991 - 57.25\n",
+            "Sapiens: A Brief History of Humankind - 54.23\n",
+            "Tipping the Velvet - 53.74\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
